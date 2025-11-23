@@ -1,0 +1,58 @@
+
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Snake — Standalone</title>
+<style>
+  body{background:#0b1220;color:#e5e7eb;font-family:system-ui;margin:0;display:flex;flex-direction:column;align-items:center}
+  .wrap{max-width:700px;width:100%;padding:16px}
+  .hud{display:flex;gap:12px;color:#94a3b8;margin:8px 0}
+  canvas{background:#0f172a;border:1px solid #1f2a44;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .btn{border:1px solid #1f2a44;background:#111827;color:#e5e7eb;border-radius:10px;padding:6px 10px;cursor:pointer}
+</style></head>
+<body>
+<div class="wrap">
+  <h2>Snake Classic</h2>
+  <div class="hud">Score: <span id="score">0</span> • Best: <span id="best">0</span></div>
+  <canvas id="c" width="480" height="480"></canvas>
+  <div style="margin-top:10px">
+    <button class="btn" id="restart">Restart</button>
+  </div>
+</div>
+<script>
+  const grid=24, size=480, step=size/grid;
+  const ctx=document.getElementById('c').getContext('2d');
+  let snake=[{x:12,y:12}], dir={x:1,y:0}, apple=rand(), score=0, best=+localStorage.getItem('snake-best')||0, running=true;
+  document.getElementById('best').textContent=best;
+  function rand(){ return {x:Math.floor(Math.random()*grid), y:Math.floor(Math.random()*grid)}}
+  function collide(a,b){ return a.x===b.x&&a.y===b.y; }
+  function loop(){
+    if(!running) return;
+    setTimeout(()=>{
+      requestAnimationFrame(loop);
+      // move
+      const head={x:snake[0].x+dir.x, y:snake[0].y+dir.y};
+      if(head.x<0||head.y<0||head.x>=grid||head.y>=grid|| snake.some(s=>s.x===head.x&&s.y===head.y)){ running=false; return; }
+      snake.unshift(head);
+      if(collide(head,apple)){ score++; document.getElementById('score').textContent=score; apple=rand(); }
+      else snake.pop();
+      // draw
+      ctx.clearRect(0,0,size,size);
+      ctx.fillStyle='#22d3ee'; snake.forEach(s=>ctx.fillRect(s.x*step,s.y*step,step-1,step-1));
+      ctx.fillStyle='#34d399'; ctx.fillRect(apple.x*step,apple.y*step,step-1,step-1);
+      // grid lines (subtle)
+      ctx.strokeStyle='#111c2f'; ctx.lineWidth=1;
+      for(let i=0;i<=grid;i++){ ctx.beginPath(); ctx.moveTo(i*step,0); ctx.lineTo(i*step,size); ctx.stroke();
+                                ctx.beginPath(); ctx.moveTo(0,i*step); ctx.lineTo(size,i*step); ctx.stroke(); }
+    }, 70);
+  }
+  addEventListener('keydown',e=>{
+    if(e.key==='ArrowUp'&&dir.y!==1) dir={x:0,y:-1};
+    if(e.key==='ArrowDown'&&dir.y!==-1) dir={x:0,y:1};
+    if(e.key==='ArrowLeft'&&dir.x!==1) dir={x:-1,y:0};
+    if(e.key==='ArrowRight'&&dir.x!==-1) dir={x:1,y:0};
+  });
+  document.getElementById('restart').onclick=()=>{ if(score>best){ best=score; localStorage.setItem('snake-best',best); } score=0; document.getElementById('score').textContent=score; snake=[{x:12,y:12}]; dir={x:1,y:0}; running=true; loop(); };
+  loop();
+</script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Memory Match — Polished Standalone</title>
+  <style>
+    :root{
+      --bg1:#eff6ff; --bg2:#dbeafe; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
+      --accent1:#fde68a; --accent2:#f59e0b; --ring:#34d399;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial;
+         background:linear-gradient(180deg,var(--bg1),var(--bg2)); color:var(--ink)}
+    .wrap{max-width:1100px;margin:24px auto;padding:16px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    @media (max-width:900px){.grid2{grid-template-columns:1fr}}
+
+    .card{background:rgba(255,255,255,.9);border:1px solid #e5e7eb;border-radius:16px;
+          box-shadow:0 10px 30px rgba(2,8,23,.08);}
+    .pad{padding:20px}
+
+    .title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .title h1{font-size:24px;margin:0}
+    .btn{appearance:none;border:1px solid #e5e7eb;background:#fff;border-radius:12px;padding:8px 12px;
+         display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:transform .05s ease}
+    .btn:active{transform:scale(.98)}
+    .btn.primary{background:#111827;color:#fff;border-color:#111827}
+
+    .stats{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);margin:8px 0 16px 0}
+    .stat{display:flex;align-items:center;gap:6px}
+
+    .board{display:grid;grid-template-columns:repeat(4, minmax(70px, 1fr));gap:12px}
+    .cell{position:relative;aspect-ratio:1/1;border-radius:16px;perspective:900px}
+    .inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .35s ease}
+    .flipped .inner,.matched .inner{transform:rotateY(180deg)}
+
+    .face,.back{position:absolute;inset:0;border-radius:16px;display:flex;align-items:center;justify-content:center;
+      font-size:40px;backface-visibility:hidden}
+    .back{background:linear-gradient(135deg,var(--accent1),var(--accent2));font-weight:800}
+    .face{background:var(--card);transform:rotateY(180deg);border:1px solid #e5e7eb}
+    .matched{outline:3px solid var(--ring);outline-offset:2px}
+
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+    .tabs button{border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:8px;cursor:pointer}
+    .muted{color:var(--muted);font-size:12px}
+
+    .row{margin:10px 0;display:flex;gap:8px;flex-wrap:wrap}
+    input[type="text"]{flex:1;min-width:240px;border:1px solid #e5e7eb;border-radius:10px;padding:8px}
+    .list{padding-left:18px}
+    .dialog{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,8,23,.45)}
+    .dialog.open{display:flex}
+    .dialog-card{background:#fff;border-radius:16px;max-width:420px;width:92%;padding:18px;border:1px solid #e5e7eb}
+    .center{display:flex;gap:12px;justify-content:center}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="grid2">
+      <!-- Game column -->
+      <div class="card pad">
+        <div class="title">
+          <h1>Memory Match</h1>
+          <div class="row">
+            <button class="btn" id="toggleCode">Code</button>
+            <button class="btn primary" id="reset">Reset</button>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat">⏱ <span id="time">0s</span></div>
+          <div class="stat">🖱 <span id="moves">0 moves</span></div>
+          <div class="stat">👑 <span id="best">Best: - / -s</span></div>
+        </div>
+        <div id="board" class="board"></div>
+      </div>
+
+      <!-- Settings / Docs column -->
+      <div class="card pad">
+        <div class="tabs">
+          <button data-tab="settings">Settings</button>
+          <button data-tab="how">How it Works</button>
+          <button data-tab="saas">SaaS Hooks</button>
+        </div>
+
+        <div id="tab-settings">
+          <div class="row">
+            <button class="btn" id="emojiMode">Emoji Mode</button>
+            <button class="btn" id="imageMode">Custom Images</button>
+          </div>
+          <div class="row" id="imageInputs" style="display:none">
+            <input type="text" id="customList" placeholder="https://example.com/a.png, https://example.com/b.png, ...">
+            <button class="btn primary" id="apply">Apply & Shuffle</button>
+          </div>
+          <p class="muted">Local metrics (time, best score) are stored in your browser only.</p>
+        </div>
+
+        <div id="tab-how" style="display:none">
+          <ul class="list">
+            <li>Duplicates items to form pairs, then shuffles (Fisher–Yates).</li>
+            <li>First click starts timer; each attempt increments moves.</li>
+            <li>Matches stay face-up; mismatches flip back after a short delay.</li>
+            <li>Best time/moves saved via <code>localStorage</code>.</li>
+          </ul>
+        </div>
+
+        <div id="tab-saas" style="display:none">
+          <p>Ideas to productize:</p>
+          <ul class="list">
+            <li>Locked themes & asset packs (subscription unlock).</li>
+            <li>Leaderboards for classes (opt‑in).</li>
+            <li>Embeddable widget for education portals.</li>
+            <li>Prompt-based theme generator (AI).</li>
+          </ul>
+        </div>
+
+        <div id="codeBlock" style="display:none">
+<pre style="max-height:220px;overflow:auto;background:#0f172a;color:#e5e7eb;padding:10px;border-radius:10px">
+// Single-file build focused on look & feel. No external libraries.
+</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog" id="win">
+    <div class="dialog-card">
+      <h2 style="margin:0 0 6px 0">Nice! You cleared the board</h2>
+      <div class="muted" id="winStats">Time: 0s · Moves: 0</div>
+      <div class="row center"><button class="btn primary" id="again">Play Again</button></div>
+    </div>
+  </div>
+
+<script>
+  // ---------- Helpers
+  const DEFAULT = ['🧽','🪼','🐌','🦀','🐟','🐙','🌊','🪸'];
+  const boardEl = document.getElementById('board');
+  const timeEl = document.getElementById('time');
+  const movesEl = document.getElementById('moves');
+  const bestEl = document.getElementById('best');
+  const win = document.getElementById('win');
+  const winStats = document.getElementById('winStats');
+  let deck=[], first=null, lock=false, moves=0, startTs=null, timerId=null;
+  let useImages=false, customList='';
+
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+  function now(){ return Math.floor((Date.now()-startTs)/1000); }
+  function isImg(s){ return /^(https?:)\/\//i.test(s) || /\.(png|jpg|jpeg|gif|webp|svg)$/i.test(s); }
+
+  function getItems(){
+    if(!useImages) return DEFAULT;
+    const arr = customList.split(/[\n,]/).map(s=>s.trim()).filter(Boolean);
+    const imgs = arr.filter(isImg).slice(0,12);
+    return imgs.length>=2 ? imgs : DEFAULT;
+  }
+
+  function buildDeck(items){
+    const base = items.slice(0,8);
+    const d = [...base,...base].map((v,i)=>({v,id:i,f:false,m:false}));
+    shuffle(d); return d;
+  }
+
+  function draw(){
+    boardEl.innerHTML='';
+    deck.forEach((card,idx)=>{
+      const cell = document.createElement('div'); cell.className='cell ' + (card.m?'matched':'');
+      const inner = document.createElement('div'); inner.className='inner';
+      if(card.f || card.m) cell.classList.add('flipped');
+
+      const face = document.createElement('div'); face.className='face';
+      if(isImg(card.v)){ const img=document.createElement('img'); img.src=card.v; img.alt='card'; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; face.appendChild(img); }
+      else { face.textContent = card.v; }
+
+      const back = document.createElement('div'); back.className='back'; back.textContent='🌊';
+
+      inner.appendChild(face); inner.appendChild(back); cell.appendChild(inner);
+      cell.addEventListener('click', ()=> flip(card, cell));
+      boardEl.appendChild(cell);
+    });
+  }
+
+  function startTimer(){
+    if(startTs || timerId) return;
+    startTs = Date.now();
+    timerId = setInterval(()=>{ timeEl.textContent = now() + 's'; }, 200);
+  }
+  function stopTimer(){
+    clearInterval(timerId); timerId=null;
+  }
+
+  function flip(card, cell){
+    if(lock || card.f || card.m) return;
+    startTimer();
+    card.f = true; draw();
+    if(!first){ first = card; return; }
+    moves++; movesEl.textContent = moves + ' moves';
+    if(first.v === card.v){
+      // match
+      setTimeout(()=>{
+        deck.forEach(c=>{ if(c.f && c.v===card.v) c.m=true; });
+        first=null;
+        checkWin();
+        draw();
+      }, 240);
+    }else{
+      // mismatch
+      lock = true;
+      setTimeout(()=>{
+        deck.forEach(c=>{ if(c.f && !c.m) c.f=false; });
+        first=null; lock=false; draw();
+      }, 650);
+    }
+  }
+
+  function checkWin(){
+    if(deck.every(c=>c.m)){
+      stopTimer();
+      const elapsed = now();
+      const prev = JSON.parse(localStorage.getItem('mm-best-standalone')||'{}');
+      const best = {
+        moves: prev.moves ? Math.min(prev.moves, moves) : moves,
+        time:  prev.time  ? Math.min(prev.time, elapsed) : elapsed
+      };
+      localStorage.setItem('mm-best-standalone', JSON.stringify(best));
+      bestEl.textContent = `Best: ${best.moves ?? '-'} / ${best.time ?? '-'}s`;
+      win.classList.add('open');
+      winStats.textContent = `Time: ${elapsed}s · Moves: ${moves}`;
+    }
+  }
+
+  function reset(){
+    stopTimer(); startTs=null; timeEl.textContent='0s'; moves=0; movesEl.textContent='0 moves';
+    const items = getItems(); deck = buildDeck(items); draw();
+    const b = JSON.parse(localStorage.getItem('mm-best-standalone')||'{}');
+    bestEl.textContent = `Best: ${b.moves ?? '-'} / ${b.time ?? '-'}s`;
+  }
+
+  // ---------- Tabs & controls
+  const tabs = {settings: document.getElementById('tab-settings'),
+                how: document.getElementById('tab-how'),
+                saas: document.getElementById('tab-saas')};
+  document.querySelectorAll('.tabs button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      Object.values(tabs).forEach(el=>el.style.display='none');
+      tabs[btn.dataset.tab].style.display='block';
+    });
+  });
+
+  document.getElementById('toggleCode').onclick=()=>{
+    const el=document.getElementById('codeBlock');
+    el.style.display = el.style.display==='none' ? 'block':'none';
+  };
+  document.getElementById('reset').onclick=reset;
+  document.getElementById('again').onclick=()=>{ win.classList.remove('open'); reset(); };
+  document.getElementById('emojiMode').onclick=()=>{ useImages=false; document.getElementById('imageInputs').style.display='none'; reset(); };
+  document.getElementById('imageMode').onclick=()=>{ useImages=true; document.getElementById('imageInputs').style.display='flex'; reset(); };
+  document.getElementById('apply').onclick=()=>{ customList=document.getElementById('customList').value; reset(); };
+
+  // Init
+  reset();
+</script>
+</body>
+</html>
