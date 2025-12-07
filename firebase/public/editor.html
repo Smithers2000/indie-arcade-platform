@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Game Editor • Indie Arcade</title>
+    <style>
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: 'Segoe UI', sans-serif;
+          background: #0a0f29;
+          color: white;
+        }
+        header {
+          background: rgba(255,255,255,0.05);
+          padding: 20px;
+          text-align: center;
+          backdrop-filter: blur(6px);
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        header h1 {
+          margin: 0;
+          font-size: 28px;
+        }
+        .container {
+          padding: 30px 20px;
+          max-width: 800px;
+          margin: auto;
+        }
+        .game-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .game-item {
+          background: rgba(255,255,255,0.07);
+          margin: 12px 0;
+          padding: 20px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          backdrop-filter: blur(6px);
+          box-shadow: 0 0 18px rgba(0, 140, 255, 0.18);
+        }
+        .game-info {
+          flex: 1;
+        }
+        .game-info h3 {
+          margin: 0 0 8px 0;
+        }
+        .game-info p {
+          margin: 4px 0;
+          opacity: 0.85;
+        }
+        .game-actions button {
+          margin-left: 10px;
+          padding: 8px 14px;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          cursor: pointer;
+        }
+        .btn-edit {
+          background: #3cb9ff;
+          color: white;
+        }
+        .btn-delete {
+          background: #ff4d4d;
+          color: white;
+        }
+        .btn-edit:hover {
+          filter: brightness(1.1);
+        }
+        .btn-delete:hover {
+          filter: brightness(1.1);
+        }
+        .edit-form {
+          display: none;
+          background: rgba(255,255,255,0.05);
+          padding: 20px;
+          border-radius: 12px;
+          margin-top: 20px;
+        }
+        .edit-form input, .edit-form textarea {
+          width: 100%;
+          padding: 10px;
+          margin: 8px 0;
+          border: none;
+          border-radius: 6px;
+          background: rgba(255,255,255,0.1);
+          color: white;
+          font-size: 15px;
+        }
+        .edit-form button {
+          padding: 12px 18px;
+          border: none;
+          border-radius: 8px;
+          font-size: 16px;
+          background: #3cb9ff;
+          color: white;
+          cursor: pointer;
+          margin-top: 10px;
+        }
+        .edit-form button:hover {
+          filter: brightness(1.1);
+        }
+        #message {
+          margin-top: 20px;
+          color: #9fe3ff;
+          font-size: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header><h1>Indie Arcade • Game Editor</h1></header>
+
+<div class="container">
+    <ul id="gameList" class="game-list"></ul>
+    <div id="message"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="firebase-auth.js"></script>
+<script src="editor.js"></script>
+
+</body>
+</html>
