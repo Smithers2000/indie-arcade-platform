@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel • Indie Arcade</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a0f29;
+      color: white;
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    header {
+      width: 100%;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(6px);
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .card {
+      margin-top: 40px;
+      background: rgba(255,255,255,0.07);
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 0 18px rgba(0, 180, 255, 0.2);
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 16px;
+    }
+    button {
+      padding: 14px 20px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      background: linear-gradient(to right, #3cb9ff, #0072ff);
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      filter: brightness(1.15);
+    }
+    #message {
+      margin-top: 15px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<header><h1>Indie Arcade • Admin Panel</h1></header>
+
+<div class="card" id="formCard">
+  <h2>Add New Game</h2>
+  <input type="text" id="gameName" placeholder="Game Name" required />
+  <textarea id="gameDesc" placeholder="Game Description" rows="4"></textarea>
+  <input type="text" id="gameId" placeholder="Game ID (unique)" required />
+  <input type="text" id="price" placeholder="Price (0 if free)" required />
+  <input type="text" id="thumb" placeholder="Thumbnail Image URL" />
+
+  <button onclick="addGame()">Add Game</button>
+  <div id="message"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="firebase-auth.js"></script>
+<script src="admin.js"></script>
+
+</body>
+</html>
