@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Memory Match — Polished Standalone</title>
+  <title>Memory Match Standalone</title>
   <style>
     :root{
       --bg1:#eff6ff; --bg2:#dbeafe; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
@@ -41,11 +41,11 @@
     .back{background:linear-gradient(135deg,var(--accent1),var(--accent2));font-weight:800}
     .face{background:var(--card);transform:rotateY(180deg);border:1px solid #e5e7eb}
     .matched{outline:3px solid var(--ring);outline-offset:2px}
-
+	
     .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
     .tabs button{border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:8px;cursor:pointer}
     .muted{color:var(--muted);font-size:12px}
-
+	<-- row settingss and styling -->
     .row{margin:10px 0;display:flex;gap:8px;flex-wrap:wrap}
     input[type="text"]{flex:1;min-width:240px;border:1px solid #e5e7eb;border-radius:10px;padding:8px}
     .list{padding-left:18px}
@@ -53,8 +53,42 @@
     .dialog.open{display:flex}
     .dialog-card{background:#fff;border-radius:16px;max-width:420px;width:92%;padding:18px;border:1px solid #e5e7eb}
     .center{display:flex;gap:12px;justify-content:center}
+	
+	header {
+      width: 100%;
+      background: #282c34;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    header button {
+      background: #61dafb;
+      border: none;
+      color: #282c34;
+      padding: 6px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    header h1 {
+      flex: 1;
+      text-align: center;
+      margin: 0;
+      font-size: 20px;
+    }
+	
+	
   </style>
 </head>
+
+<header>
+    <button onclick="goBack()">← Back to Store</button>
+    <h1>Memory Match</h1>
+  </header>
+
 <body>
   <div class="wrap">
     <div class="grid2">
@@ -75,7 +109,7 @@
         <div id="board" class="board"></div>
       </div>
 
-      <!-- Settings / Docs column -->
+      <!-- Settings / Docs column *for developer only to make edits and to get html doc on programm
       <div class="card pad">
         <div class="tabs">
           <button data-tab="settings">Settings</button>
@@ -112,7 +146,8 @@
             <li>Embeddable widget for education portals.</li>
             <li>Prompt-based theme generator (AI).</li>
           </ul>
-        </div>
+        </div> 
+		-->
 
         <div id="codeBlock" style="display:none">
 <pre style="max-height:220px;overflow:auto;background:#0f172a;color:#e5e7eb;padding:10px;border-radius:10px">
@@ -235,29 +270,19 @@
     bestEl.textContent = `Best: ${b.moves ?? '-'} / ${b.time ?? '-'}s`;
   }
 
-  // ---------- Tabs & controls
-  const tabs = {settings: document.getElementById('tab-settings'),
-                how: document.getElementById('tab-how'),
-                saas: document.getElementById('tab-saas')};
-  document.querySelectorAll('.tabs button').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      Object.values(tabs).forEach(el=>el.style.display='none');
-      tabs[btn.dataset.tab].style.display='block';
-    });
-  });
-
   document.getElementById('toggleCode').onclick=()=>{
     const el=document.getElementById('codeBlock');
     el.style.display = el.style.display==='none' ? 'block':'none';
   };
   document.getElementById('reset').onclick=reset;
   document.getElementById('again').onclick=()=>{ win.classList.remove('open'); reset(); };
-  document.getElementById('emojiMode').onclick=()=>{ useImages=false; document.getElementById('imageInputs').style.display='none'; reset(); };
-  document.getElementById('imageMode').onclick=()=>{ useImages=true; document.getElementById('imageInputs').style.display='flex'; reset(); };
-  document.getElementById('apply').onclick=()=>{ customList=document.getElementById('customList').value; reset(); };
 
   // Init
   reset();
+  
+  function goBack() {
+      window.location.href = 'josh game store.html';  // adjust if needed
+    }
 </script>
 </body>
 </html>
